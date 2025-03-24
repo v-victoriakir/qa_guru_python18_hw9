@@ -1,116 +1,58 @@
-import os
-
-from selene import browser, have, command
+from model.pages.practice_form import RegistrationPage
 
 
-# успешная отправка формы со всеми заполненными полями
 def test_form_submitted():
-    browser.open("/")
-    browser.driver.execute_script("$('#RightSide_Advertisement').remove()")
-    browser.element("#firstName").set_value("Maria")
-    browser.element("#lastName").set_value("Lopez")
-    browser.element("#userEmail").set_value("MLopez@gmail.com")
-    browser.element('[for = "gender-radio-2"]').click()
-    browser.element("#userNumber").set_value("0123456789")
-    browser.element("#dateOfBirthInput").click()
-    browser.element(".react-datepicker__month-select").click().element(
-        'option[value="9"]'
-    ).click()
-    browser.element(".react-datepicker__year-select").click().element(
-        'option[value="1996"]'
-    ).click()
-    browser.element(".react-datepicker__day--010").click()
-    browser.element('[id="subjectsInput"]').set_value("Bio").element(
-        '//*[contains(text(),"Biology")]'
-    ).click()
-    browser.element('[for = "hobbies-checkbox-2"]').click()
-    browser.element('[for = "hobbies-checkbox-3"]').click()
-    browser.element("#uploadPicture").send_keys(
-        os.path.abspath("../tests/resources/unnamed.jpg")
-    )
-    browser.element("#currentAddress").type("Main street, 55 bld, 10 apt.")
-    browser.element("#state").perform(command.js.scroll_into_view).click().element(
-        "#react-select-3-option-3"
-    ).click()
-    browser.element("#city").click().element("#react-select-4-option-0").click()
-    browser.element("#submit").click()
-
-    # проверки
-    browser.element("#example-modal-sizes-title-lg").should(
-        have.exact_text("Thanks for submitting the form")
-    )
-    browser.element(".table").should(have.text("Maria Lopez"))
-    browser.element(".table").should(have.text("MLopez@gmail.com"))
-    browser.element(".table").should(have.text("Female"))
-    browser.element(".table").should(have.text("0123456789"))
-    browser.element(".table").should(have.text("10 October,1996"))
-    browser.element(".table").should(have.text("Biology"))
-    browser.element(".table").should(have.text("Reading, Music"))
-    browser.element(".table").should(have.text("unnamed.jpg"))
-    browser.element(".table").should(have.text("Main street, 55 bld, 10 apt."))
-    browser.element(".table").should(have.text("Rajasthan Jaipur"))
-
-    # альтернативный способ:
-    # browser.all("//div[@class='table-responsive']//td[2]").should(
-    #     have.exact_texts(
-    #         "Maria Lopez",
-    #         "MLopez@gmail.com",
-    #         "Female",
-    #         "0123456789",
-    #         "10 October,1996",
-    #         "Biology",
-    #         "Reading, Music",
-    #         "unnamed.jpg",
-    #         "Main street, 55 bld, 10 apt.",
-    #         "Rajasthan Jaipur",
-    #     )
-    # )
+    practice_form = RegistrationPage()
+    (practice_form.open()
+    .fill_first_name("Maria")
+    .fill_last_name("Lopez")
+    .fill_email("MLopez@gmail.com")
+    .select_gender("Female")
+    .fill_mobile_number("0123456789")
+    .fill_date_of_birth(9, 1996, 10)
+    .fill_subject('Biology')
+    .upload_avatar("unnamed.jpg")
+    .select_hobbies("Reading")
+    .select_hobbies("Music")
+    .fill_current_address("Main street, 55 bld, 10 apt.")
+    .select_state("Rajasthan")
+    .select_city("Jaipur")
+    .submit_form()
+    .registered_user_should_have(
+        "Maria", "Lopez", "MLopez@gmail.com", "Female", "0123456789", "10 October,1996", "Biology", "Reading, Music",
+        "unnamed.jpg", "Main street, 55 bld, 10 apt.", "Rajasthan", "Jaipur"
+    ))
 
 
-# попытка отправки формы только с обяз. полями
 def test_form_required_fields_only(today_date):
-    browser.open("/")
-    browser.element("#firstName").set_value("Maria")
-    browser.element("#lastName").set_value("Lopez")
-    browser.element('[for = "gender-radio-2"]').click()
-    browser.element("#userNumber").set_value("0123456789")
-    browser.element("#submit").perform(command.js.scroll_into_view).click()
-
-    # проверки
-    browser.element("#example-modal-sizes-title-lg").should(
-        have.exact_text("Thanks for submitting the form")
-    )
-    browser.element(".table").should(have.text("Maria Lopez"))
-    browser.element(".table").should(have.text(""))
-    browser.element(".table").should(have.text("Female"))
-    browser.element(".table").should(have.text("0123456789"))
-    browser.element(".table").should(have.text(f"c"))
-    browser.element(".table").should(have.text(""))
-    browser.element(".table").should(have.text(""))
-    browser.element(".table").should(have.text(""))
-    browser.element(".table").should(have.text(""))
-    browser.element(".table").should(have.text(""))
+    practice_form = RegistrationPage()
+    (practice_form.open()
+    .fill_first_name("Maria")
+    .fill_last_name("Lopez")
+    .select_gender("Female")
+    .fill_mobile_number("0123456789")
+    .submit_form()
+    .registered_user_should_have(
+        "Maria", "Lopez", "", "Female", "0123456789", f"c", "", "",
+        "", "", "", ""
+    ))
 
 
-# попытка отправки формы без заполнения обязательных полей (не отправляем last name & number)
 def test_form_error_required_fields_not_filled():
-    browser.open("/")
-    browser.element("#firstName").set_value("Maria")
-    browser.element('[for = "gender-radio-2"]').click()
-    browser.element("#submit").perform(command.js.scroll_into_view).click()
+    practice_form = RegistrationPage()
+    (practice_form.open()
+     .fill_first_name("Maria")
+     .select_gender("Female")
+     .submit_form()
+     .check_if_required_fields_not_filled())
 
-    # проверки
-    browser.element("#userForm").should(have.attribute("class").value("was-validated"))
 
-
-# попытка отправки формы c некорректным полем Mobile
 def test_form_required_fields_but_wrong_number():
-    browser.open("/")
-    browser.element("#firstName").set_value("Maria")
-    browser.element("#lastName").set_value("Lopez")
-    browser.element('[for = "gender-radio-2"]').click()
-    browser.element("#userNumber").set_value("123456789")
-    browser.element("#submit").perform(command.js.scroll_into_view).click()
-
-    # проверки
-    browser.element("#userForm").should(have.attribute("class").value("was-validated"))
+    practice_form = RegistrationPage()
+    (practice_form.open()
+     .fill_first_name("Maria")
+     .fill_last_name("Lopez")
+     .select_gender("Female")
+     .fill_mobile_number("123456789")
+     .submit_form()
+     .check_if_required_fields_not_filled())
