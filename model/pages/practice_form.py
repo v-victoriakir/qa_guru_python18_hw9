@@ -64,7 +64,7 @@ class RegistrationPage:
         self.hobbies.element_by(have.text(value)).click()
         return self
 
-    def upload_avatar(self, value):
+    def set_avatar(self, value):
         # self.upload_avatar.set_value(resource.path(file_name))
         # self.upload_avatar.type(os.path.abspath(value))
         self.upload_avatar.set_value(path(value))

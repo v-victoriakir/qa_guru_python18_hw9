@@ -11,7 +11,7 @@ def test_form_submitted():
     .fill_mobile_number("0123456789")
     .fill_date_of_birth(9, 1996, 10)
     .fill_subject('Biology')
-    .upload_avatar("unnamed.jpg")
+    .set_avatar("unnamed.jpg")
     .select_hobbies("Reading")
     .select_hobbies("Music")
     .fill_current_address("Main street, 55 bld, 10 apt.")
