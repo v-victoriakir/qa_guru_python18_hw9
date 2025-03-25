@@ -67,7 +67,7 @@ class RegistrationPage:
         self.hobbies.element_by(have.text(value)).click()
         return self
 
-    def upload_avatar(self, value):
+    def set_avatar(self, value):
         self.upload_avatar.set_value(resource.path(value))
         # # self.upload_avatar.type(os.path.abspath(value))
         # # self.upload_avatar.set_value(path(value))
@@ -100,7 +100,7 @@ class RegistrationPage:
         self.fill_date_of_birth(user.year, user.month, user.day)
         self.fill_subject(user.subject)
         self.select_hobbies(user.hobbies)
-        self.upload_avatar(user.avatar)
+        self.set_avatar(user.avatar)
         self.fill_current_address(user.address)
         self.select_state(user.state)
         self.select_city(user.city)
