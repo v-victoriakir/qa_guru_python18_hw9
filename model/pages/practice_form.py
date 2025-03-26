@@ -16,7 +16,7 @@ class RegistrationPage:
         self.year = browser.element(".react-datepicker__year-select")
         self.month = browser.element(".react-datepicker__month-select")
 
-        self.subject_input = browser.element('[id="subjectsInput"]')
+        self.subject_input = browser.element('#subjectsInput')
         self.hobbies = browser.all('[for^=hobbies-checkbox]')
         self.upload_avatar = browser.element('#uploadPicture')
         self.current_address = browser.element("#currentAddress")
@@ -58,9 +58,7 @@ class RegistrationPage:
         return self
 
     def fill_subject(self, value):
-        self.subject_input.type(value).element(
-            f'//*[contains(text(),{value})]'
-        ).click()
+        self.subject_input.send_keys(value).press_enter()
         return self
 
     def select_hobbies(self, value):
@@ -79,7 +77,7 @@ class RegistrationPage:
         return self
 
     def select_state(self, value):
-        self.state.scroll_into_view.click().all('[id^=react-select-3-option]').element_by(
+        self.state.click().all('[id^=react-select-3-option]').element_by(
             have.exact_text(value)).click()
         return self
 
@@ -97,7 +95,7 @@ class RegistrationPage:
         self.fill_email(user.email)
         self.select_gender(user.gender)
         self.fill_mobile_number(user.mobile_number)
-        self.fill_date_of_birth(user.year, user.month, user.day)
+        self.fill_date_of_birth(user.birth_year, user.birth_month, user.birth_day)
         self.fill_subject(user.subject)
         self.select_hobbies(user.hobbies)
         self.set_avatar(user.avatar)
@@ -114,10 +112,11 @@ class RegistrationPage:
                 user.email,
                 user.gender,
                 user.mobile_number,
-                f'{user.day} {user.month} {user.year}',
+                # f'{user.day} {user.month} {user.year}',
+                f'{user.birth_day} {user.text_birth_month},{user.birth_year}',
                 user.subject,
-                user.avatar,
                 user.hobbies,
+                user.avatar,
                 user.address,
                 f'{user.state} {user.city}')
         )
